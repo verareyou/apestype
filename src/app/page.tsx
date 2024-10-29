@@ -207,22 +207,7 @@ export default function Home() {
                 className={cn(['mb-4 h-10 rounded-[10px] bg-primary/5'])}
                 value={accuracy}
               />
-              <input
-                type="text"
-                className=""
-                onFocus={() => {
-                  setIsFocused(true)
-                  setIsRestartFocused(false)
-                }}
-                ref={paragraphRef}
-                onKeyDown={handleInput}
-                onChange={() => {}}
-                autoFocus
-                value={text}
-                onBlur={() => {
-                  setIsFocused(false)
-                }}
-              />
+
               <p className="text-2xl font-bold mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
                 {words.map((word, wordIndex) => (
                   <span
@@ -257,7 +242,23 @@ export default function Home() {
                 ))}
               </p>
               <p className="text-sm text-muted-foreground animate-pulse">
-                Current input: {text}
+                Current input:{' '}
+                <input
+                  type="text"
+                  className=" outline-none border-none bg-transparent"
+                  onFocus={() => {
+                    setIsFocused(true)
+                    setIsRestartFocused(false)
+                  }}
+                  ref={paragraphRef}
+                  onKeyDown={handleInput}
+                  onChange={() => {}}
+                  autoFocus
+                  value={text}
+                  onBlur={() => {
+                    setIsFocused(false)
+                  }}
+                />
               </p>
             </>
           ) : (
