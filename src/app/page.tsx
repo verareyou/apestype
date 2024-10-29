@@ -19,8 +19,8 @@ export default function Home() {
   const [wpm, setWpm] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
   const [isFinished, setIsFinished] = useState(false)
-  const paragraphRef = useRef<HTMLParagraphElement>(null)
-  const [isFocused, setIsFocused] = useState(false)
+  const paragraphRef = useRef<HTMLInputElement>(null)
+  const [isFocused, setIsFocused] = useState(true)
   const [isRestartFocused, setIsRestartFocused] = useState(false)
   const isTyping = useMemo(() => {
     const isTyping = paragraphRef.current?.textContent?.length
@@ -29,11 +29,11 @@ export default function Home() {
 
   useEffect(() => {
     const savedWordCount = localStorage.getItem(WORD_COUNT_KEY)
-    generateWords()
+    resetTest()
     if (paragraphRef.current) {
       paragraphRef.current.focus()
     }
-    console.log(savedWordCount)
+    console.log(savedWordCount, 'savedWordCount')
     if (savedWordCount) {
       setWords(wordList.slice(0, parseInt(savedWordCount)))
     }
@@ -41,14 +41,25 @@ export default function Home() {
 
   const generateWords = () => {
     const shuffled = [...wordList].sort(() => 0.5 - Math.random())
-    setWords(shuffled.slice(0, 50))
+    const words = shuffled.slice(
+      0,
+      parseInt(localStorage.getItem(WORD_COUNT_KEY) || '50')
+    )
+    setWords(words)
   }
 
   const handleInput = (e: React.KeyboardEvent<HTMLParagraphElement>) => {
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault()
-      const typedWord = text.trim()
-      const currentWord = words[currentWordIndex]
+    const typedWord = text.trim()
+    const currentWord = words[currentWordIndex]
+
+    // finish on last word's last letter without typing space or enter
+    if (typedWord.length >= currentWord.length) {
+      if (e.key === 'Backspace') {
+        setText((prevText) =>
+          e.metaKey || e.ctrlKey ? '' : prevText.slice(0, -1)
+        )
+        return
+      }
 
       if (!startTime) {
         setStartTime(Date.now())
@@ -70,12 +81,78 @@ export default function Home() {
         setWpm(calculatedWpm)
         setIsFinished(true)
       }
-    } else if (e.key.length === 1) {
+      return
+    }
+
+    if (
+      currentWord.split('').pop() === e.key &&
+      currentWordIndex === words.length - 1
+    ) {
+      if (!startTime) {
+        setStartTime(Date.now())
+      }
+
+      const correctChars = typedWord
+        .split('')
+        .filter((char, index) => char === currentWord[index]).length
+      const newAccuracy = Math.round((correctChars / currentWord.length) * 100)
+      setAccuracy((prevAccuracy) => (prevAccuracy + newAccuracy) / 2)
+
+      setCurrentWordIndex((prevIndex) => prevIndex + 1)
+      setText('')
+
+      if (currentWordIndex === words.length - 1) {
+        const timeElapsed = (Date.now() - (startTime || 0)) / 1000 / 60
+        const wordsTyped = words.length
+        const calculatedWpm = Math.round(wordsTyped / timeElapsed)
+        setWpm(calculatedWpm)
+        setIsFinished(true)
+      }
+      return
+    }
+
+    // if (typedWord === currentWord && typedWord.length === currentWord.length) {
+    //   setCurrentWordIndex((prevIndex) => prevIndex + 1)
+    //   setText('')
+    //   return
+    // }
+    if (
+      (e.key === ' ' || e.key === 'Enter') &&
+      currentWord.length === typedWord.length
+    ) {
+      e.preventDefault()
+
+      if (!startTime) {
+        setStartTime(Date.now())
+      }
+
+      const correctChars = typedWord
+        .split('')
+        .filter((char, index) => char === currentWord[index]).length
+      const newAccuracy = Math.round((correctChars / currentWord.length) * 100)
+      setAccuracy((prevAccuracy) => (prevAccuracy + newAccuracy) / 2)
+
+      setCurrentWordIndex((prevIndex) => prevIndex + 1)
+      setText('')
+
+      if (currentWordIndex === words.length - 1) {
+        const timeElapsed = (Date.now() - (startTime || 0)) / 1000 / 60
+        const wordsTyped = words.length
+        const calculatedWpm = Math.round(wordsTyped / timeElapsed)
+        setWpm(calculatedWpm)
+        setIsFinished(true)
+      }
+      return
+    }
+    if (e.key.length === 1) {
       setText((prevText) => prevText + e.key)
-    } else if (e.key === 'Backspace') {
+      return
+    }
+    if (e.key === 'Backspace') {
       setText((prevText) =>
         e.metaKey || e.ctrlKey ? '' : prevText.slice(0, -1)
       )
+      return
     }
   }
 
@@ -87,9 +164,11 @@ export default function Home() {
     setIsFinished(false)
     setCurrentWordIndex(0)
     generateWords()
+    setIsFocused(true)
     if (paragraphRef.current) {
       paragraphRef.current.focus()
     }
+    setIsRestartFocused(false)
   }
 
   const handleWordCountChange = (count: number) => {
@@ -110,7 +189,10 @@ export default function Home() {
         <CardContent className=" border-none shadow-none pt-6 relative">
           {!isFocused || isRestartFocused ? (
             <div
-              onClick={() => paragraphRef.current?.focus()}
+              onClick={() => {
+                paragraphRef.current?.focus()
+                setIsRestartFocused(false)
+              }}
               onBlur={() => setIsRestartFocused(false)}
               className="absolute inset-0 rounded-3xl z-10 backdrop-blur-sm  flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-opacity-20"
             >
@@ -125,18 +207,23 @@ export default function Home() {
                 className={cn(['mb-4 h-10 rounded-[10px] bg-primary/5'])}
                 value={accuracy}
               />
-              <p
-                ref={paragraphRef}
-                className="text-2xl font-bold mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out"
-                onKeyDown={handleInput}
-                tabIndex={0}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => {
-                  setTimeout(() => {
-                    setIsFocused(false)
-                  }, 100)
+              <input
+                type="text"
+                className=""
+                onFocus={() => {
+                  setIsFocused(true)
+                  setIsRestartFocused(false)
                 }}
-              >
+                ref={paragraphRef}
+                onKeyDown={handleInput}
+                onChange={() => {}}
+                autoFocus
+                value={text}
+                onBlur={() => {
+                  setIsFocused(false)
+                }}
+              />
+              <p className="text-2xl font-bold mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
                 {words.map((word, wordIndex) => (
                   <span
                     key={wordIndex}
@@ -198,7 +285,7 @@ export default function Home() {
           onBlur={() => setIsRestartFocused(false)}
           onClick={resetTest}
           variant="default"
-          className="px-6 py-3 text-lg h-0  font-semibold transition-all duration-300 hover:scale-105"
+          className="px-6 py-3 text-lg h-1  font-semibold transition-all duration-300 hover:scale-105"
         >
           Try Again
         </Button>
