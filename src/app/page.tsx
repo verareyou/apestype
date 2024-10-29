@@ -28,22 +28,19 @@ export default function Home() {
   }, [isFocused, isFinished])
 
   useEffect(() => {
-    const savedWordCount = localStorage.getItem(WORD_COUNT_KEY)
     resetTest()
     if (paragraphRef.current) {
       paragraphRef.current.focus()
-    }
-    console.log(savedWordCount, 'savedWordCount')
-    if (savedWordCount) {
-      setWords(wordList.slice(0, parseInt(savedWordCount)))
     }
   }, [])
 
   const generateWords = () => {
     const shuffled = [...wordList].sort(() => 0.5 - Math.random())
+    console.log(shuffled, 'shuffled')
+    const random = Math.floor(Math.random() * 10) + 1
     const words = shuffled.slice(
-      0,
-      parseInt(localStorage.getItem(WORD_COUNT_KEY) || '50')
+      random,
+      parseInt(localStorage.getItem(WORD_COUNT_KEY) || '50') + random
     )
     setWords(words)
   }
