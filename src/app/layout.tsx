@@ -11,8 +11,35 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'Monkey Type Clone',
+  title: 'Apes Type',
   description: 'A typing speed test app',
+  keywords: [
+    'typing',
+    'speed',
+    'test',
+    'apes',
+    'type',
+    'typing test',
+    'apes type',
+    'apes typing',
+    'apes typing test',
+  ],
+  appLinks: {
+    web: {
+      url: 'https://apestype.ashito.online',
+    },
+  },
+  robots: 'index, follow',
+  viewport: 'width=device-width, initial-scale=1',
+  authors: [{ name: 'Ashito', url: 'https://ashito.online' }],
+  creator: 'Ashito',
+  publisher: 'Ashito',
+  category: 'Education',
+  abstract: 'A typing speed test app',
+  metadataBase: new URL('https://apestype.ashito.online'),
+  verification: {
+    google: 'google-site-verification=1234567890',
+  },
 }
 
 export default function RootLayout({
