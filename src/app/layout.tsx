@@ -11,7 +11,7 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'Apes Type',
+  title: 'Apestype | A typing speed test app',
   description: 'A typing speed test app',
   keywords: [
     'typing',

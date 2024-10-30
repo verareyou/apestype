@@ -49,15 +49,7 @@ export default function Home() {
     const typedWord = text.trim()
     const currentWord = words[currentWordIndex]
 
-    // finish on last word's last letter without typing space or enter
-    if (typedWord.length >= currentWord.length) {
-      if (e.key === 'Backspace') {
-        setText((prevText) =>
-          e.metaKey || e.ctrlKey ? '' : prevText.slice(0, -1)
-        )
-        return
-      }
-
+    const generateResult = () => {
       if (!startTime) {
         setStartTime(Date.now())
       }
@@ -78,6 +70,17 @@ export default function Home() {
         setWpm(calculatedWpm)
         setIsFinished(true)
       }
+    }
+
+    // finish on last word's last letter without typing space or enter
+    if (typedWord.length >= currentWord.length || e.key === ' ') {
+      if (e.key === 'Backspace') {
+        setText((prevText) =>
+          e.metaKey || e.ctrlKey ? '' : prevText.slice(0, -1)
+        )
+        return
+      }
+      generateResult()
       return
     }
 
@@ -85,60 +88,16 @@ export default function Home() {
       currentWord.split('').pop() === e.key &&
       currentWordIndex === words.length - 1
     ) {
-      if (!startTime) {
-        setStartTime(Date.now())
-      }
-
-      const correctChars = typedWord
-        .split('')
-        .filter((char, index) => char === currentWord[index]).length
-      const newAccuracy = Math.round((correctChars / currentWord.length) * 100)
-      setAccuracy((prevAccuracy) => (prevAccuracy + newAccuracy) / 2)
-
-      setCurrentWordIndex((prevIndex) => prevIndex + 1)
-      setText('')
-
-      if (currentWordIndex === words.length - 1) {
-        const timeElapsed = (Date.now() - (startTime || 0)) / 1000 / 60
-        const wordsTyped = words.length
-        const calculatedWpm = Math.round(wordsTyped / timeElapsed)
-        setWpm(calculatedWpm)
-        setIsFinished(true)
-      }
+      generateResult()
       return
     }
 
-    // if (typedWord === currentWord && typedWord.length === currentWord.length) {
-    //   setCurrentWordIndex((prevIndex) => prevIndex + 1)
-    //   setText('')
-    //   return
-    // }
     if (
       (e.key === ' ' || e.key === 'Enter') &&
       currentWord.length === typedWord.length
     ) {
       e.preventDefault()
-
-      if (!startTime) {
-        setStartTime(Date.now())
-      }
-
-      const correctChars = typedWord
-        .split('')
-        .filter((char, index) => char === currentWord[index]).length
-      const newAccuracy = Math.round((correctChars / currentWord.length) * 100)
-      setAccuracy((prevAccuracy) => (prevAccuracy + newAccuracy) / 2)
-
-      setCurrentWordIndex((prevIndex) => prevIndex + 1)
-      setText('')
-
-      if (currentWordIndex === words.length - 1) {
-        const timeElapsed = (Date.now() - (startTime || 0)) / 1000 / 60
-        const wordsTyped = words.length
-        const calculatedWpm = Math.round(wordsTyped / timeElapsed)
-        setWpm(calculatedWpm)
-        setIsFinished(true)
-      }
+      generateResult()
       return
     }
     if (e.key.length === 1) {
