@@ -128,14 +128,13 @@ export default function Home() {
   }
 
   const handleWordCountChange = (count: number) => {
-    resetTest()
-    setWords(wordList.slice(0, count))
     localStorage.setItem(WORD_COUNT_KEY, count.toString())
+    resetTest()
   }
 
   return (
     <main className=" flex-1 p-8 flex flex-col items-center justify-center pb-44  ">
-      <Card className="w-full max-w-2xl mb-8 border-none shadow-none ">
+      <Card className="w-full max-w-6xl mb-8 border-none shadow-none ">
         <div className="flex justify-center items-center mb-4">
           <OptionsBar
             wordCount={words.length}
@@ -160,20 +159,20 @@ export default function Home() {
           {!isFinished ? (
             <>
               <Progress
-                className={cn(['mb-4 h-10 rounded-[10px] bg-primary/5'])}
+                className={cn(['mb-4 h-4 rounded-[4px]  bg-primary/5'])}
                 value={accuracy}
               />
 
-              <p className="text-2xl font-bold mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
+              <p className="text-2xl font-semibold mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
                 {words.map((word, wordIndex) => (
                   <span
                     key={wordIndex}
                     className={cn(
-                      'mr-2 transition-all py-1 duration-300',
+                      'mr-2 transition-all text-primary/70 py-1 duration-300',
                       wordIndex === currentWordIndex
-                        ? 'bg-primary/20 rounded-[1px] px-1'
+                        ? 'bg-primary/20 text-primary rounded-[1px] px-1'
                         : wordIndex < currentWordIndex
-                        ? 'text-muted-foreground'
+                        ? 'text-muted-foreground/90'
                         : ''
                     )}
                   >
