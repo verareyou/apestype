@@ -88,7 +88,9 @@ export default function Home() {
       currentWord.split('').pop() === e.key &&
       currentWordIndex === words.length - 1
     ) {
-      generateResult()
+      setTimeout(() => {
+        generateResult()
+      }, 300)
       return
     }
 
@@ -170,7 +172,7 @@ export default function Home() {
                     className={cn(
                       'mr-2 transition-all text-primary/70 py-1 duration-300',
                       wordIndex === currentWordIndex
-                        ? 'bg-primary/20 text-primary rounded-[1px] px-1'
+                        ? ' text-primary rounded-[1px] px-1'
                         : wordIndex < currentWordIndex
                         ? 'text-muted-foreground/90'
                         : ''
