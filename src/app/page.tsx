@@ -208,6 +208,9 @@ export default function Home() {
                 ))}
               </p>
               <p className="text-sm text-muted-foreground animate-pulse">
+                <p className="text-lg text-muted-foreground mb-6 font-semibold">
+                  {currentWordIndex} / {words.length}
+                </p>
                 Current input:{' '}
                 <input
                   type="text"
@@ -228,7 +231,7 @@ export default function Home() {
               </p>
             </>
           ) : (
-            <>
+            <div className="flex flex-col">
               <h2 className="text-3xl font-bold mb-6 text-center text-primary">
                 Test Results
               </h2>
@@ -242,7 +245,7 @@ export default function Home() {
                   {accuracy.toFixed(1)}%
                 </p>
               </div>
-            </>
+            </div>
           )}
         </CardContent>
       </Card>
