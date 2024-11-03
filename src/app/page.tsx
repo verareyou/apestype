@@ -204,6 +204,32 @@ export default function Home() {
                         {letter}
                       </span>
                     ))}
+                    {text.length > words[currentWordIndex].length &&
+                      wordIndex === currentWordIndex && (
+                        <span
+                          className={cn(
+                            'transition-all duration-150',
+                            text[words[currentWordIndex].length] === ' '
+                              ? 'text-muted-foreground/50'
+                              : 'text-primary/50'
+                          )}
+                        >
+                          {text
+                            .slice(words[currentWordIndex].length)
+                            .split('')
+                            .map((letter, letterIndex) => (
+                              <span
+                                key={letterIndex}
+                                className={cn(
+                                  'transition-all duration-150',
+                                  'bg-red-500/50 text-white rounded-[1px]'
+                                )}
+                              >
+                                {letter}
+                              </span>
+                            ))}
+                        </span>
+                      )}
                   </span>
                 ))}
               </p>
