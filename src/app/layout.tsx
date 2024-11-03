@@ -1,13 +1,20 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
-import { Montserrat } from 'next/font/google'
+import { Montserrat, PT_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import Header from '@/components/Header'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
+  variable: '--font-sans',
   weight: [],
+})
+
+const ptMono = PT_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['400'],
 })
 
 export const metadata: Metadata = {
@@ -54,10 +61,10 @@ export default function RootLayout({
     >
       <head />
       <body
-        className={cn([
-          montserrat.className,
-          'bg-background flex flex-col min-h-screen',
-        ])}
+        style={{
+          fontFamily: montserrat.style.fontFamily,
+        }}
+        className={cn(['bg-background flex flex-col min-h-screen'])}
       >
         <ThemeProvider
           attribute="class"

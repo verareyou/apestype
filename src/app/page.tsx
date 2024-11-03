@@ -8,8 +8,14 @@ import { wordList } from './words'
 import { cn } from '@/lib/utils'
 import { Progress } from '@/components/ui/progress'
 import OptionsBar from '@/components/OptionsBar'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 
 const WORD_COUNT_KEY = 'wordCount'
+const PANEL_SIZE_KEY = 'panelSize'
 
 export default function Home() {
   const [text, setText] = useState('')
@@ -134,8 +140,15 @@ export default function Home() {
     resetTest()
   }
 
+  const handlePanelResize = (size: number) => {
+    localStorage.setItem(PANEL_SIZE_KEY, size.toString())
+    console.log(size)
+  }
+
+  const panelSize = parseInt(localStorage.getItem(PANEL_SIZE_KEY) || '10')
+
   return (
-    <main className=" flex-1 p-8 flex flex-col items-center justify-center pb-44  ">
+    <main className=" flex-1 p-8 flex flex-col items-center justify-center pb-44 ">
       <Card className="w-full max-w-6xl mb-8 border-none shadow-none ">
         <div className="flex justify-center items-center mb-4">
           <OptionsBar
@@ -143,99 +156,119 @@ export default function Home() {
             onWordCountChange={handleWordCountChange}
           />
         </div>
-        <CardContent className=" border-none shadow-none pt-6 relative">
-          {!isFocused || isRestartFocused ? (
-            <div
-              onClick={() => {
-                paragraphRef.current?.focus()
-                setIsRestartFocused(false)
-              }}
-              onBlur={() => setIsRestartFocused(false)}
-              className="absolute inset-0 rounded-3xl z-10 backdrop-blur-sm  flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-opacity-20"
-            >
-              <p className="text-primary font-bold text-xl ">
-                {isRestartFocused ? 'Click to restart' : 'Click to start'}
-              </p>
-            </div>
-          ) : null}
-          {!isFinished ? (
-            <>
-              <Progress
-                className={cn(['mb-4 h-4 rounded-[4px]  bg-primary/5'])}
-                value={accuracy}
-              />
-
-              <p className="text-2xl font-semibold mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
-                {words.map((word, wordIndex) => (
-                  <span
-                    key={wordIndex}
-                    className={cn(
-                      'mr-2 transition-all text-primary/70 py-1 duration-300',
-                      wordIndex === currentWordIndex
-                        ? ' text-primary rounded-[1px] px-1'
-                        : wordIndex < currentWordIndex
-                        ? 'text-muted-foreground/90'
-                        : ''
-                    )}
-                  >
-                    {word.split('').map((letter, letterIndex) => (
-                      <span
-                        key={letterIndex}
-                        className={cn(
-                          'transition-all duration-150',
-                          wordIndex === currentWordIndex &&
-                            letterIndex === text.length &&
-                            'bg-primary/50 text-white rounded-[1px]',
-                          wordIndex === currentWordIndex &&
-                            letterIndex < text.length &&
-                            text[letterIndex] !== letter &&
-                            'bg-red-500/50 text-white rounded-[1px]'
-                        )}
-                      >
-                        {letter}
-                      </span>
-                    ))}
-                  </span>
-                ))}
-              </p>
-              <p className="text-sm text-muted-foreground animate-pulse">
-                Current input:{' '}
-                <input
-                  type="text"
-                  className=" outline-none border-none bg-transparent"
-                  onFocus={() => {
-                    setIsFocused(true)
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={80 - panelSize}></ResizablePanel>
+          <ResizableHandle
+            onDragging={(isDragging) => {
+              if (isDragging) {
+                console.log('dragging')
+              }
+            }}
+            withHandle
+          />
+          <ResizablePanel
+            onResize={handlePanelResize}
+            defaultSize={panelSize}
+          >
+            <CardContent className=" bg-none border-none shadow-none pt-6 relative">
+              {!isFocused || isRestartFocused ? (
+                <div
+                  onClick={() => {
+                    paragraphRef.current?.focus()
                     setIsRestartFocused(false)
                   }}
-                  ref={paragraphRef}
-                  onKeyDown={handleInput}
-                  onChange={() => {}}
-                  autoFocus
-                  value={text}
-                  onBlur={() => {
-                    setIsFocused(false)
-                  }}
-                />
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="text-3xl font-bold mb-6 text-center text-primary">
-                Test Results
-              </h2>
-              <div className="flex justify-between items-center mb-6 bg-primary/10 p-4 rounded-lg">
-                <p className="text-lg font-semibold">Words Per Minute (WPM):</p>
-                <p className="text-3xl font-bold text-primary">{wpm}</p>
-              </div>
-              <div className="flex justify-between items-center mb-6 bg-secondary/10 p-4 rounded-lg">
-                <p className="text-lg font-semibold">Accuracy:</p>
-                <p className="text-3xl font-bold text-primary/80">
-                  {accuracy.toFixed(1)}%
-                </p>
-              </div>
-            </>
-          )}
-        </CardContent>
+                  onBlur={() => setIsRestartFocused(false)}
+                  className="absolute inset-0 rounded-3xl z-10 backdrop-blur-sm  flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-opacity-20"
+                >
+                  <p className="text-primary font-bold text-xl ">
+                    {isRestartFocused ? 'Click to restart' : 'Click to start'}
+                  </p>
+                </div>
+              ) : null}
+              {!isFinished ? (
+                <>
+                  {/* <Progress
+                className={cn(['mb-4 h-4 rounded-[4px] bg-primary/5'])}
+                value={accuracy}
+              /> */}
+
+                  <p className="text-2xl font-light font-mono mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
+                    {words.map((word, wordIndex) => (
+                      <span
+                        key={wordIndex}
+                        className={cn(
+                          'mr-2 transition-all text-primary/50 py-1 duration-300',
+                          wordIndex === currentWordIndex
+                            ? ' text-primary rounded-[1px] px-1'
+                            : wordIndex < currentWordIndex
+                            ? 'text-muted-foreground/90'
+                            : ''
+                        )}
+                      >
+                        {word.split('').map((letter, letterIndex) => (
+                          <span
+                            key={letterIndex}
+                            className={cn(
+                              'transition-all duration-150',
+                              wordIndex === currentWordIndex &&
+                                letterIndex === text.length &&
+                                'bg-primary/50 text-white rounded-[1px]',
+                              wordIndex === currentWordIndex &&
+                                letterIndex < text.length &&
+                                text[letterIndex] !== letter &&
+                                'bg-red-500/50 text-white rounded-[1px]'
+                            )}
+                          >
+                            {letter}
+                          </span>
+                        ))}
+                      </span>
+                    ))}
+                  </p>
+                  <p className="text-sm text-muted-foreground animate-pulse">
+                    Current input:{' '}
+                    <input
+                      type="text"
+                      className=" outline-none border-none bg-transparent"
+                      onFocus={() => {
+                        setIsFocused(true)
+                        setIsRestartFocused(false)
+                      }}
+                      ref={paragraphRef}
+                      onKeyDown={handleInput}
+                      onChange={() => {}}
+                      autoFocus
+                      value={text}
+                      onBlur={() => {
+                        setIsFocused(false)
+                      }}
+                    />
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-3xl font-bold mb-6 text-center text-primary">
+                    Test Results
+                  </h2>
+                  <div className="flex justify-between items-center mb-6 bg-primary/10 p-4 rounded-lg">
+                    <p className="text-lg font-semibold">
+                      Words Per Minute (WPM):
+                    </p>
+                    <p className="text-3xl font-bold text-primary">{wpm}</p>
+                  </div>
+                  <div className="flex justify-between items-center mb-6 bg-secondary/10 p-4 rounded-lg">
+                    <p className="text-lg font-semibold">Accuracy:</p>
+                    <p className="text-3xl font-bold text-primary/80">
+                      {accuracy.toFixed(1)}%
+                    </p>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={80 - panelSize}></ResizablePanel>
+        </ResizablePanelGroup>
       </Card>
       <div className="overflow-hidden h-0">
         <Button
