@@ -145,7 +145,9 @@ export default function Home() {
     console.log(size)
   }
 
-  const panelSize = parseInt(localStorage.getItem(PANEL_SIZE_KEY) || '10')
+  const [panelSize, setPanelSize] = useState(() =>
+    parseInt(localStorage.getItem(PANEL_SIZE_KEY) || '10')
+  )
 
   return (
     <main className=" flex-1 p-8 flex flex-col items-center justify-center pb-44 ">
