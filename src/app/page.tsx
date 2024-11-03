@@ -179,7 +179,7 @@ export default function Home() {
                   <span
                     key={wordIndex}
                     className={cn(
-                      'mr-2 transition-all text-primary/50 py-1 duration-300',
+                      ' transition-all text-primary/50 py-1 duration-300',
                       wordIndex === currentWordIndex
                         ? ' text-primary rounded-[1px] px-1'
                         : wordIndex < currentWordIndex
@@ -230,13 +230,23 @@ export default function Home() {
                             ))}
                         </span>
                       )}
+                    <span
+                      className={cn(
+                        'transition-all text-transparent inline overflow-hidden duration-300 w-0 h-0 ',
+                        text.length === words[currentWordIndex].length &&
+                          wordIndex === currentWordIndex &&
+                          'bg-primary/50 rounded-[1px] w-2 h-[28px] translate-y-[1.5px] text-transparent '
+                      )}
+                    >
+                      {'i'}
+                    </span>
                   </span>
                 ))}
               </p>
               <p className="text-sm text-muted-foreground animate-pulse">
-                <p className="text-lg text-muted-foreground mb-6 font-semibold">
+                <span className="text-lg text-muted-foreground mb-6 font-semibold">
                   {currentWordIndex} / {words.length}
-                </p>
+                </span>
                 Current input:{' '}
                 <input
                   type="text"
