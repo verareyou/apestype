@@ -244,7 +244,7 @@ export default function Home() {
                 ))}
               </p>
               <p className="text-sm text-muted-foreground animate-pulse">
-                <span className="text-lg text-muted-foreground mb-6 font-semibold">
+                <span className="text-lg text-muted-foreground block mb-6 font-semibold">
                   {currentWordIndex} / {words.length}
                 </span>
                 Current input:{' '}
