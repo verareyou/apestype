@@ -3,19 +3,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useTheme } from 'next-themes'
 import { wordList } from './words'
 import { cn } from '@/lib/utils'
-import { Progress } from '@/components/ui/progress'
 import OptionsBar from '@/components/OptionsBar'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable'
-
+import { AnimatePresence, motion } from 'framer-motion'
 const WORD_COUNT_KEY = 'wordCount'
-const PANEL_SIZE_KEY = 'panelSize'
 
 export default function Home() {
   const [text, setText] = useState('')
@@ -174,7 +166,13 @@ export default function Home() {
                 value={accuracy}
               /> */}
 
-              <p className="text-2xl font-light font-mono mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out">
+              <p
+                onClick={() => {
+                  paragraphRef.current?.focus()
+                  setIsRestartFocused(false)
+                }}
+                className="text-2xl font-light font-mono mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out"
+              >
                 {words.map((word, wordIndex) => (
                   <span
                     key={wordIndex}
@@ -194,7 +192,7 @@ export default function Home() {
                           'transition-all duration-150',
                           wordIndex === currentWordIndex &&
                             letterIndex === text.length &&
-                            'bg-primary/50 text-white rounded-[1px]',
+                            'bg-primary/50 text-primary rounded-[1px]',
                           wordIndex === currentWordIndex &&
                             letterIndex < text.length &&
                             text[letterIndex] !== letter &&
@@ -258,10 +256,33 @@ export default function Home() {
                   ref={paragraphRef}
                   onKeyDown={handleInput}
                   onChange={() => {}}
-                  autoFocus
                   value={text}
+                  // autoFocus
                   onBlur={() => {
-                    setIsFocused(false)
+                    const restartButton =
+                      document.getElementById('restart-button')
+
+                    if (restartButton) {
+                      if (!restartButton.contains(document.activeElement)) {
+                        setIsFocused(false)
+                        setIsRestartFocused(true)
+                        restartButton.focus()
+                        return
+                      }
+                    }
+
+                    setIsFocused(true)
+                    paragraphRef.current?.focus()
+                    setIsRestartFocused(false)
+                  }}
+                  onKeyDownCapture={(e) => {
+                    if (e.key === 'Tab') {
+                      console.log('tab')
+                      e.preventDefault()
+                      // setIsFocused(false)
+                      // setIsRestartFocused(true)
+                      document.getElementById('restart-button')?.focus()
+                    }
                   }}
                 />
               </p>
@@ -286,7 +307,11 @@ export default function Home() {
         </CardContent>
       </Card>
       <div className="overflow-hidden h-0">
-        <Button
+        <RestartButton
+          resetTest={resetTest}
+          setIsRestartFocused={setIsRestartFocused}
+        />
+        {/* <Button
           onFocus={() => setIsRestartFocused(true)}
           onBlur={() => setIsRestartFocused(false)}
           onClick={resetTest}
@@ -294,18 +319,99 @@ export default function Home() {
           className="px-6 py-3 text-lg h-1  font-semibold transition-all duration-300 hover:scale-105"
         >
           Try Again
-        </Button>
+        </Button> */}
       </div>
 
       {isFinished && (
-        <Button
-          onClick={resetTest}
-          variant="default"
-          className="px-6 py-3 text-lg font-semibold transition-all duration-300 hover:scale-105"
-        >
-          Try Again
-        </Button>
+        <RestartButton
+          resetTest={resetTest}
+          setIsRestartFocused={setIsRestartFocused}
+        />
       )}
     </main>
   )
+}
+
+const RestartButton = (props: {
+  resetTest: () => void
+  setIsRestartFocused: (value: boolean) => void
+}) => {
+  const { resetTest, setIsRestartFocused } = props
+  const [isAnimating, setIsAnimating] = useState(false)
+  const circleVariants = {
+    initial: {
+      scale: 0,
+      opacity: 0,
+      height: 500,
+      width: 500,
+    },
+    animate: {
+      scale: 30,
+      height: 500,
+      width: 500,
+      opacity: [1, 1, 1, 0],
+      transition: {
+        duration: 0.3,
+        ease: 'easeInOut',
+      },
+    },
+    exit: {
+      opacity: 0,
+    },
+  }
+
+  return (
+    <div className="flex items-center justify-center ">
+      <Button
+        onFocus={() => setIsRestartFocused(true)}
+        onBlur={() => setIsRestartFocused(false)}
+        onClick={() => {
+          setIsAnimating(true)
+          resetTest()
+        }}
+        variant="default"
+        id="restart-button"
+        className="px-6 py-3 text-lg font-semibold transition-all duration-300"
+      >
+        Try Again <span className="text-xs">⌘R</span>
+      </Button>
+      {/* Animated expanding circle */}
+      <AnimatePresence>
+        {isAnimating && (
+          <motion.div
+            className="fixed z-[100] top-1/2 left-1/2 -translate-x-1/2 backdrop-blur-[1px]  -translate-y-1/2 bg-background/0 rounded-full"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={circleVariants}
+            onAnimationComplete={() => setIsAnimating(false)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  )
+  // return (
+  //   <>
+  //     <div
+  //       id="circle-animation"
+  //       className="absolute flex items-center justify-center"
+  //     >
+  //       <motion.div
+  //         variants={circleVariants}
+  //         initial="initial"
+  //         animate="animate"
+  //         className="w-32 h-32 bg-white rounded-full"
+  //       />
+  //     </div>
+  //     <Button
+  //       onFocus={() => setIsRestartFocused(true)}
+  //       onBlur={() => setIsRestartFocused(false)}
+  //       onClick={handleRestartClick}
+  //       variant="default"
+  //       className="px-6 py-3 text-lg h-1 font-semibold transition-all duration-300"
+  //     >
+  //       Try Again <span className="text-xs">⌘R</span>
+  //     </Button>
+  //   </>
+  // )
 }
