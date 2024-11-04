@@ -114,6 +114,14 @@ export default function Home() {
     }
   }
 
+  useEffect(() => {
+    if (paragraphRef.current) {
+      setIsFocused(true)
+      paragraphRef.current.focus()
+      setIsRestartFocused(false)
+    }
+  }, [paragraphRef.current])
+
   const resetTest = () => {
     setText('')
     setStartTime(null)
@@ -123,10 +131,13 @@ export default function Home() {
     setCurrentWordIndex(0)
     generateWords()
     setIsFocused(true)
-    if (paragraphRef.current) {
-      paragraphRef.current.focus()
-    }
     setIsRestartFocused(false)
+
+    setTimeout(() => {
+      if (paragraphRef.current) {
+        paragraphRef.current.focus()
+      }
+    }, 100)
   }
 
   const handleWordCountChange = (count: number) => {
@@ -169,7 +180,11 @@ export default function Home() {
               <p
                 onClick={() => {
                   paragraphRef.current?.focus()
+                  setIsFocused(true)
                   setIsRestartFocused(false)
+                }}
+                onFocus={() => {
+                  console.log('focused')
                 }}
                 className="text-2xl font-light font-mono mb-4 flex flex-wrap outline-none transition-colors duration-300 ease-in-out"
               >
@@ -258,32 +273,38 @@ export default function Home() {
                   onChange={() => {}}
                   value={text}
                   // autoFocus
-                  onBlur={() => {
-                    const restartButton =
-                      document.getElementById('restart-button')
+                  // onBlur={() => {
+                  //   const restartButton =
+                  //     document.getElementById('restart-button')
 
-                    if (restartButton) {
-                      if (!restartButton.contains(document.activeElement)) {
-                        setIsFocused(false)
-                        setIsRestartFocused(true)
-                        restartButton.focus()
-                        return
-                      }
-                    }
+                  //   if (restartButton) {
+                  //     if (!restartButton.contains(document.activeElement)) {
+                  //       setIsFocused(false)
+                  //       setIsRestartFocused(true)
+                  //       restartButton.focus()
+                  //       return
+                  //     }
+                  //   }
 
-                    setIsFocused(true)
-                    paragraphRef.current?.focus()
-                    setIsRestartFocused(false)
-                  }}
-                  onKeyDownCapture={(e) => {
-                    if (e.key === 'Tab') {
-                      console.log('tab')
-                      e.preventDefault()
-                      // setIsFocused(false)
-                      // setIsRestartFocused(true)
-                      document.getElementById('restart-button')?.focus()
-                    }
-                  }}
+                  //   setIsFocused(true)
+                  //   paragraphRef.current?.focus()
+                  //   setIsRestartFocused(false)
+                  // }}
+                  // onKeyDownCapture={(e) => {
+                  //   if (e.key === 'Tab') {
+                  //     console.log('tab')
+                  //     e.preventDefault()
+                  //     // setIsFocused(false)
+                  //     // setIsRestartFocused(true)
+                  //     const restartButton: HTMLElement =
+                  //       document.getElementsByClassName(
+                  //         'restart-button'
+                  //       )[0] as HTMLElement
+                  //     if (restartButton) {
+                  //       restartButton.focus()
+                  //     }
+                  //   }
+                  // }}
                 />
               </p>
             </>
@@ -306,7 +327,7 @@ export default function Home() {
           )}
         </CardContent>
       </Card>
-      <div className="overflow-hidden h-0">
+      <div className={cn([' h-10'])}>
         <RestartButton
           resetTest={resetTest}
           setIsRestartFocused={setIsRestartFocused}
@@ -321,13 +342,6 @@ export default function Home() {
           Try Again
         </Button> */}
       </div>
-
-      {isFinished && (
-        <RestartButton
-          resetTest={resetTest}
-          setIsRestartFocused={setIsRestartFocused}
-        />
-      )}
     </main>
   )
 }
@@ -363,15 +377,18 @@ const RestartButton = (props: {
   return (
     <div className="flex items-center justify-center ">
       <Button
-        onFocus={() => setIsRestartFocused(true)}
+        onFocus={() => {
+          setIsRestartFocused(true)
+          console.log('focused')
+        }}
         onBlur={() => setIsRestartFocused(false)}
         onClick={() => {
           setIsAnimating(true)
           resetTest()
+          console.log('clicked')
         }}
         variant="default"
-        id="restart-button"
-        className="px-6 py-3 text-lg font-semibold transition-all duration-300"
+        className="px-6 py-3 restart-button bg-background text-muted-foreground/50 hover:bg-transparent hover:text-primary text-sm  transition-all duration-300"
       >
         Try Again <span className="text-xs">⌘R</span>
       </Button>

@@ -9,7 +9,7 @@ const Header = () => {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="w-full max-w-7xl mx-auto mb-8">
+    <header className="w-full max-w-7xl mx-auto px-4 mb-8">
       <div className="flex items-center justify-between py-6">
         {/* Logo and Title Section */}
         <div className="flex items-center gap-2">
